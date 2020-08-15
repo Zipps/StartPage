@@ -1,6 +1,6 @@
 using System;
 
-namespace front_page
+namespace StartPage
 {
     public class WeatherForecast
     {

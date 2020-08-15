@@ -1,6 +1,6 @@
 {
-  "short_name": "front_page",
-  "name": "front_page",
+  "short_name": "start-page",
+  "name": "start-page",
   "icons": [
     {
       "src": "favicon.ico",
