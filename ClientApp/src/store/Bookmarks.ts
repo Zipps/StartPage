@@ -7,8 +7,9 @@ export interface BookmarksState {
 }
 
 export interface Bookmark {
-    image?: string;
+    id: string;
     title?: string;
+    imageUrl?: string;
     url: string;
 }
 
@@ -25,7 +26,14 @@ type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction;
 
 export const actionCreators = {
     requestBookmarks: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
-
+        const appState = getState();
+        if (appState && appState.bookmarks && appState.bookmarks.bookmarks.length === 0) {
+            fetch(`bookmark`)
+                .then(response => response.json() as Promise<Bookmark[]>)
+                .then(data => {
+                    dispatch({ type: 'RECEIVE_BOOKMARKS', bookmarks: data });
+                })
+        }
     }
 };
 

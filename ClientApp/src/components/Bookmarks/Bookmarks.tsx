@@ -13,15 +13,27 @@ type BookmarkProps =
     RouteComponentProps<{}>;
 
 class Bookmarks extends React.PureComponent<BookmarkProps> {
+    public componentDidMount() {
+        this.ensureDataFetched();
+    }
+
+    public componentDidUpdate() {
+        this.ensureDataFetched();
+    }
+
     public render() {
         return (
             <div className={styles.Bookmarks}>
                 <h1>Bookmarks</h1>
                 <ul>
-                    {this.props.bookmarks.map(x => <li>{Bookmark(x)}</li>)}
+                    {this.props.bookmarks.map(x => <li key={x.id}>{Bookmark(x)}</li>)}
                 </ul>
             </div>
         );
+    }
+
+    private ensureDataFetched() {
+        this.props.requestBookmarks();
     }
 }
 
