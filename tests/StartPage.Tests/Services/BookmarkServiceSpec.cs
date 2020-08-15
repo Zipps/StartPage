@@ -1,6 +1,4 @@
 using System;
-using System.Globalization;
-using System.Reflection;
 using System.Threading.Tasks;
 using StartPage.Framework;
 using StartPage.Tests.Factories;
@@ -10,6 +8,8 @@ using Nunit.Framework;
 
 namespace StartPage.Tests.Services
 {
+    [TestFixture]
+    [Parallelizable(ParallelScope.All)]
     public class BookmarkServiceSpec
     {
         private SqliteConnection _connection;
