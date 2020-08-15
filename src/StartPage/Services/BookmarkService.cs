@@ -9,7 +9,7 @@ namespace StartPage.Services
 {
     public interface IBookmarkService
     {
-        Task Create(Bookmark bookmark);
+        Task<Guid> Create(Bookmark bookmark);
         Task<Bookmark> Get(Guid id);
         Task<IEnumerable<Bookmark>> GetAll();
         Task Update(Bookmark bookmark);
@@ -25,10 +25,16 @@ namespace StartPage.Services
             _context = context;
         }
 
-        public async Task Create(Bookmark bookmark)
+        public async Task<Guid> Create(Bookmark bookmark)
         {
+            if (bookmark.Id == Guid.Empty)
+            {
+                bookmark.Id = Guid.NewGuid();
+            }
             _context.Bookmarks.Add(bookmark);
             await _context.SaveChangesAsync();
+
+            return bookmark.Id;
         }
 
         public async Task Update(Bookmark bookmark)
