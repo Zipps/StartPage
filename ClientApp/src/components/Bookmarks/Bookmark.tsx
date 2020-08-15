@@ -1,15 +1,12 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
+import { Bookmark } from '../../store/Bookmarks';
 
-import styles from '.Bookmark.module.css';
+export default (props: Bookmark) => {
+    const imageElement = (props.image != null ? 
+                    <img src={props.image} alt=''></img> : null);
 
-interface BookmarkProps {
-    image: string;
-    title: string;
-}
-
-export default (props: BookmarkProps) => {
-    <div className={styles.Bookmark}>
-        <img src={props.image} alt={props.title}></img>
-        <p>{props.title}</p>
-    </div>
+    return <a href={props.url}>
+                {imageElement}
+                <p>{props.title}</p>
+            </a>
 }

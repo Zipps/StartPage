@@ -7,8 +7,8 @@ export interface BookmarksState {
 }
 
 export interface Bookmark {
-    image: string;
-    titile: string;
+    image?: string;
+    title?: string;
     url: string;
 }
 
