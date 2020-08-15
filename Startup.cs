@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StartPage.Framework;
+using StartPage.Services;
 
 namespace StartPage
 {
@@ -22,6 +25,10 @@ namespace StartPage
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddDbContext<StartPageContext>(options => BuildDbContextOptions(options));
+
+            services.AddScoped<IBookmarkService, BookmarkService>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -66,6 +73,11 @@ namespace StartPage
                     spa.UseReactDevelopmentServer(npmScript: "start");
                 }
             });
+        }
+
+        private void BuildDbContextOptions(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite("Data Source=startpage.db");
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+
 namespace StartPage.Models
 {
     public class Bookmark
