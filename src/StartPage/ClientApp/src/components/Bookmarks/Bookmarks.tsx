@@ -1,11 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../../store';
 import * as BookmarksStore from '../../store/Bookmarks';
-import Bookmark from './Bookmark';
-
-import styles from './Bookmarks.module.css';
+import Bookmark from './Bookmark/Bookmark';
+import BookmarkForm from './BookmarkForm/BookmarkForm';
 import { RouteComponentProps } from 'react-router';
+
+import classes from './Bookmarks.module.css';
 
 type BookmarkProps =
     BookmarksStore.BookmarksState &
@@ -13,21 +14,19 @@ type BookmarkProps =
     RouteComponentProps<{}>;
 
 class Bookmarks extends React.PureComponent<BookmarkProps> {
-    public componentDidMount() {
-        this.ensureDataFetched();
-    }
-
     public componentDidUpdate() {
         this.ensureDataFetched();
     }
 
     public render() {
         return (
-            <div className={styles.Bookmarks}>
+            <div className={classes.Bookmarks}>
                 <h1>Bookmarks</h1>
+                <button onClick={this.props.showBookmarkForm}>Add</button>
                 <ul>
-                    {this.props.bookmarks.map(x => <li key={x.id}>{Bookmark(x)}</li>)}
+                    {this.props.bookmarks.map(props => <li key={props.id}>(<Bookmark {...props} />)</li>)}
                 </ul>
+                {this.props.showCreateForm ? (<BookmarkForm />) : null}
             </div>
         );
     }

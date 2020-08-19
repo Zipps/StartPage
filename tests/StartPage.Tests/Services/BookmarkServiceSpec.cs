@@ -46,11 +46,9 @@ namespace StartPage.Tests.Services
             Assert.AreEqual(Guid.Empty, bookmark.Id);
 
             var service = new BookmarkService(_context);
-            var id = await service.Create(bookmark);
-
-            var updatedBookmark = await service.Get(id);
-            Assert.NotNull(updatedBookmark);
-            Assert.AreNotEqual(Guid.Empty, updatedBookmark.Id);
+            var createdBookmark = await service.Create(bookmark);
+            Assert.NotNull(createdBookmark);
+            Assert.AreNotEqual(Guid.Empty, createdBookmark.Id);
         }
 
         [Test]

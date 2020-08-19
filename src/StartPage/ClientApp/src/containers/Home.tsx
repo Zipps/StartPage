@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ApplicationState } from '../store';
 import * as HomeStore from '../store/Home';
-import Bookmarks from './Bookmarks/Bookmarks';
+import Bookmarks from '../components/Bookmarks/Bookmarks';
 
 type HomeProps =
     HomeStore.HomeState &
