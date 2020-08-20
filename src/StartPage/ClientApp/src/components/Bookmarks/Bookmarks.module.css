@@ -10,3 +10,8 @@
         width: 80%;
     }
 }
+
+.BookmarkList {
+    display: flex;
+    flex-flow: row wrap;
+}

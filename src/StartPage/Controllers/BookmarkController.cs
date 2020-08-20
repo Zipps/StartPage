@@ -28,8 +28,9 @@ namespace StartPage.Controllers
         }
 
         [HttpPost]
-        public async Task Update([FromBody]Bookmark bookmark)
+        public async Task Update(string idString, [FromBody]Bookmark bookmark)
         {
+            bookmark.Id = Guid.Parse(idString);
             await _service.Update(bookmark);
         }
         

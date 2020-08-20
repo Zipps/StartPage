@@ -4,7 +4,6 @@ import { AppThunkAction } from './';
 export interface BookmarksState {
     isLoaded: boolean;
     bookmarks: Bookmark[];
-    showCreateForm: boolean;
 }
 
 export interface Bookmark {
@@ -23,15 +22,11 @@ interface ReceiveBookmarksAction {
     bookmarks: Bookmark[];
 }
 
-interface ShowBookmarkForm {
-    type: 'SHOW_BOOKMARK_FORM'
+interface SaveBookmarkAction {
+    type: 'SAVE_BOOKMARK';
 }
 
-interface CreateBookmarkAction {
-    type: 'CREATE_BOOKMARK';
-}
-
-type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction | ShowBookmarkForm | CreateBookmarkAction;
+type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction | SaveBookmarkAction;
 
 export const actionCreators = {
     requestBookmarks: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -42,10 +37,7 @@ export const actionCreators = {
                 .then(data => dispatch({ type: 'RECEIVE_BOOKMARKS', bookmarks: data }))
         }
     },
-    showBookmarkForm: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
-       dispatch({ type: 'SHOW_BOOKMARK_FORM' });
-    },
-    createBookmark: (bookmark: Bookmark): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    saveBookmark: (bookmark: Bookmark): AppThunkAction<KnownAction> => (dispatch, getState) => {
         var appState = getState();
         fetch(`bookmark`, {
             method: 'POST',
@@ -68,7 +60,7 @@ export const actionCreators = {
     }
 };
 
-const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false, showCreateForm: false };
+const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false };
 
 export const reducer: Reducer<BookmarksState> = (state: BookmarksState | undefined, incomingAction: Action): BookmarksState => {
     if (state === undefined) {
@@ -79,27 +71,19 @@ export const reducer: Reducer<BookmarksState> = (state: BookmarksState | undefin
     switch (action.type){
         case 'REQUEST_BOOKMARKS':
             return {
-                bookmarks: state.bookmarks,
-                isLoaded: false,
-                showCreateForm: state.showCreateForm 
+                ...state,
+                isLoaded: false
             };
         case 'RECEIVE_BOOKMARKS':
             return {
+                ...state,
                 bookmarks: action.bookmarks,
-                isLoaded: true,
-                showCreateForm: state.showCreateForm
+                isLoaded: true
             };
-        case 'SHOW_BOOKMARK_FORM':
+        case 'SAVE_BOOKMARK':
             return {
-                bookmarks: state.bookmarks,
-                isLoaded: state.isLoaded,
-                showCreateForm: true
-            }
-        case 'CREATE_BOOKMARK':
-            return {
-                bookmarks: state.bookmarks,
-                isLoaded: false,
-                showCreateForm: false
+                ...state,
+                isLoaded: false
             }
     }
 
