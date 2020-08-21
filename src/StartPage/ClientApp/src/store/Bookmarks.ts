@@ -4,6 +4,7 @@ import { AppThunkAction } from './';
 export interface BookmarksState {
     isLoaded: boolean;
     bookmarks: Bookmark[];
+    viewingBookmark: boolean;
 }
 
 export interface Bookmark {
@@ -26,7 +27,18 @@ interface SaveBookmarkAction {
     type: 'SAVE_BOOKMARK';
 }
 
-type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction | SaveBookmarkAction;
+interface DeleteBookmarkAction {
+    type: 'DELETE_BOOKMARK';
+    id: string;
+}
+
+interface ShowBookmarkAction {
+    type: 'SHOW_BOOKMARK';
+    hide: boolean;
+}
+
+type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction 
+                     | SaveBookmarkAction | ShowBookmarkAction | DeleteBookmarkAction;
 
 export const actionCreators = {
     requestBookmarks: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -38,35 +50,38 @@ export const actionCreators = {
         }
     },
     saveBookmark: (bookmark: Bookmark): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        var appState = getState();
-        fetch(`bookmark`, {
+        let endpoint = 'bookmark';
+        if (bookmark.id) {
+            endpoint += `/${bookmark.id}`;
+        }
+        fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookmark)
         })
-            .then(response => response.json() as Promise<Bookmark>)
-            .then(data => {
-                let bookmarks: Bookmark[] = [];
-                if (appState.bookmarks !== undefined) {
-                    bookmarks = [...appState.bookmarks.bookmarks];
-                }
-                bookmarks.push(data);
-                
-                dispatch({ 
-                    type: 'RECEIVE_BOOKMARKS', 
-                    bookmarks: bookmarks}
-            )});
+            .then(() => {
+                dispatch({type: 'SHOW_BOOKMARK', hide: true});
+                dispatch({type: 'REQUEST_BOOKMARKS'});
+            });
 
-    }
+    },
+    deleteBookmark: (id: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        fetch(`bookmark/${id}`, {
+            method: 'DELETE'
+        })
+            .then(() => {
+                dispatch({type: 'DELETE_BOOKMARK', id: id});
+            });
+    },
+    showBookmark: (bookmark?: Bookmark, hide: boolean = false): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        dispatch({type: 'SHOW_BOOKMARK', hide: hide});
+    },
 };
 
-const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false };
+const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false, viewingBookmark: false };
 
-export const reducer: Reducer<BookmarksState> = (state: BookmarksState | undefined, incomingAction: Action): BookmarksState => {
-    if (state === undefined) {
-        return unloadedState;
-    }
-
+export const reducer: Reducer<BookmarksState> = (state: BookmarksState = unloadedState, 
+                                                 incomingAction: Action): BookmarksState => {
     const action = incomingAction as KnownAction;
     switch (action.type){
         case 'REQUEST_BOOKMARKS':
@@ -83,8 +98,27 @@ export const reducer: Reducer<BookmarksState> = (state: BookmarksState | undefin
         case 'SAVE_BOOKMARK':
             return {
                 ...state,
+                isLoaded: false,
+                viewingBookmark: false
+            };
+        case 'DELETE_BOOKMARK':
+            const bookmarks: Bookmark[] = [];
+            state.bookmarks.map(x => {
+                if (x.id !== action.id) {
+                    bookmarks.push(x);
+                }
+            });
+            
+            return {
+                ...state,
+                bookmarks: bookmarks,
                 isLoaded: false
             }
+        case 'SHOW_BOOKMARK':
+            return {
+                ...state,
+                viewingBookmark: !action.hide
+            };
     }
 
     return state;

@@ -3,12 +3,10 @@ import { RouteComponentProps } from 'react-router';
 import { connect } from 'react-redux';
 
 import { ApplicationState } from '../../../store';
-import { Bookmark } from '../../../store/Bookmarks';
 import * as BookmarksStore from '../../../store/Bookmarks';
 import Button from '../../UI/Button/Button';
 import Input, { ElementConfig } from '../../UI/Input/Input';
 import classes from './BookmarkData.module.css';
-import { triggerAsyncId } from 'async_hooks';
 
 type BookmarkProps =
     BookmarksStore.BookmarksState &
@@ -64,7 +62,7 @@ class BookmarkData extends Component<BookmarkProps> {
                 },
                 value: '',
                 validation: {
-                    required: false
+                    required: true
                 },
                 valid: true,
                 touched: false,
@@ -164,6 +162,11 @@ class BookmarkData extends Component<BookmarkProps> {
         return isValid;
     }
 
+    private closeHandler(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+       event.preventDefault();
+       this.props.showBookmark({}, true); 
+    }
+
     public render() {
         let form = (
             <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => this.bookmarkHandler(event)}>
@@ -184,7 +187,9 @@ class BookmarkData extends Component<BookmarkProps> {
                     disabled={!this.state.formIsValid}>Save</Button>
                 <Button 
                     btnType=""
-                    disabled={false}>Cancel</Button>
+                    disabled={false}
+                    clicked={(event: React.MouseEvent<HTMLButtonElement,MouseEvent>) => this.closeHandler(event)}
+                    type='button'>Cancel</Button>
             </form>
         );
         return (

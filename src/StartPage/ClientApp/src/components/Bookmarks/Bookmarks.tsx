@@ -6,6 +6,7 @@ import { ApplicationState } from '../../store';
 import * as BookmarksStore from '../../store/Bookmarks';
 import Bookmark from './Bookmark/Bookmark';
 import BookmarkData from './BookmarkData/BookmarkData';
+import Button from '../UI/Button/Button';
 
 import classes from './Bookmarks.module.css';
 
@@ -15,8 +16,8 @@ type BookmarkProps =
     RouteComponentProps<{}>;
 
 class Bookmarks extends React.PureComponent<BookmarkProps> {
-    state = {
-        viewingBookmark: false
+    public componentDidMount() {
+        this.ensureDataFetched();
     }
 
     public componentDidUpdate() {
@@ -24,18 +25,21 @@ class Bookmarks extends React.PureComponent<BookmarkProps> {
     }
 
     private addBookmarkHandler = () => {
-        this.setState( { viewingBookmark: true} );
+        this.props.showBookmark();
     }
 
     public render() {
         return (
             <div className={classes.Bookmarks}>
                 <h1>Bookmarks</h1>
-                <button onClick={this.addBookmarkHandler}>Add</button>
+                <Button 
+                    btnType=""
+                    disabled={false}
+                    clicked={this.addBookmarkHandler}>+</Button>
                 <ul className={classes.BookmarkList}>
-                    {this.props.bookmarks.map(props => <li key={props.id}>(<Bookmark {...props} />)</li>)}
+                    {this.props.bookmarks.map(props => <li key={props.id}><Bookmark {...props} /></li>)}
                 </ul>
-                {this.state.viewingBookmark ? (<BookmarkData />) : null}
+                {this.props.viewingBookmark ? <BookmarkData /> : null}
             </div>
         );
     }

@@ -28,6 +28,7 @@ namespace StartPage.Controllers
         }
 
         [HttpPost]
+        [Route("{id}")]
         public async Task Update(string idString, [FromBody]Bookmark bookmark)
         {
             bookmark.Id = Guid.Parse(idString);
