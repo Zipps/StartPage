@@ -7,8 +7,10 @@ import * as BookmarksStore from '../../store/Bookmarks';
 import Bookmark from './Bookmark/Bookmark';
 import BookmarkData from './BookmarkData/BookmarkData';
 import Button from '../UI/Button/Button';
+import SVGIcon from '../UI/SVGIcon/SVGIcon';
 
 import classes from './Bookmarks.module.css';
+import { throws } from 'assert';
 
 type BookmarkProps =
     BookmarksStore.BookmarksState &
@@ -25,21 +27,73 @@ class Bookmarks extends React.PureComponent<BookmarkProps> {
     }
 
     private addBookmarkHandler = () => {
-        this.props.showBookmark();
+        this.props.showBookmark({});
+    }
+
+    private editBookmarkHandler = (id?: string) => {
+        if (!id) return;
+
+        const bookmark = this.props.bookmarks.find(x => x.id === id);
+        this.props.showBookmark(bookmark || {});
+    }
+
+    private editModeHandler = (show: boolean) => {
+        this.props.showEditMode(show);
     }
 
     public render() {
         return (
             <div className={classes.Bookmarks}>
-                <h1>Bookmarks</h1>
-                <Button 
-                    btnType=""
-                    disabled={false}
-                    clicked={this.addBookmarkHandler}>+</Button>
+                <div className={classes.ActionBar}>
+                <div className={classes.Actions}>
+                    {!this.props.editMode 
+                    ?
+                    <React.Fragment>
+                    <Button btnType="Icon" clicked={this.addBookmarkHandler}>
+                        <SVGIcon 
+                            name='plus'
+                            width='18px'
+                            height='18px'
+                            fill='#eee'
+                            />
+                        </Button>
+                    <Button btnType="Icon" clicked={() => this.editModeHandler(true)}>
+                        <SVGIcon
+                            name='gear'
+                            width='18px'
+                            height='18px'
+                            fill='#eee'
+                            />                            
+                    </Button>
+                    </React.Fragment>
+                    : <Button btnType="Icon" clicked={() => this.editModeHandler(false)}>
+                        <SVGIcon
+                            name='tick'
+                            width='18px'
+                            height='18px'
+                            fill='#1F85DE'
+                        />
+                      </Button>}
+                </div>
+                </div>
                 <ul className={classes.BookmarkList}>
-                    {this.props.bookmarks.map(props => <li key={props.id}><Bookmark {...props} /></li>)}
+                    {this.props.bookmarks.map(props => 
+                        <li key={props.id} className={classes.ListElement}>
+                            <Bookmark {...props} />
+                            {this.props.editMode 
+                                ? <div className={classes.Overlay}
+                                       onClick={() => this.editBookmarkHandler(props.id)}>
+                                    <SVGIcon
+                                        name='gear'
+                                        width='32px'
+                                        height='32px'
+                                        fill='#eee'/>
+                                </div> 
+                                : null}
+                        </li>
+                    )}
                 </ul>
-                {this.props.viewingBookmark ? <BookmarkData /> : null}
+                {this.props.loadedBookmark ? <BookmarkData /> : null}
             </div>
         );
     }

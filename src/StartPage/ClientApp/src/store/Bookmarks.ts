@@ -4,7 +4,8 @@ import { AppThunkAction } from './';
 export interface BookmarksState {
     isLoaded: boolean;
     bookmarks: Bookmark[];
-    viewingBookmark: boolean;
+    loadedBookmark?: Bookmark;
+    editMode: boolean;
 }
 
 export interface Bookmark {
@@ -34,11 +35,16 @@ interface DeleteBookmarkAction {
 
 interface ShowBookmarkAction {
     type: 'SHOW_BOOKMARK';
-    hide: boolean;
+    bookmark?: Bookmark;
 }
 
-type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction 
-                     | SaveBookmarkAction | ShowBookmarkAction | DeleteBookmarkAction;
+interface EditModeAction {
+    type: 'EDIT_BOOKMARKS';
+    edit: boolean;
+}
+
+type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction | SaveBookmarkAction | 
+                   ShowBookmarkAction | DeleteBookmarkAction | EditModeAction;
 
 export const actionCreators = {
     requestBookmarks: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -60,7 +66,7 @@ export const actionCreators = {
             body: JSON.stringify(bookmark)
         })
             .then(() => {
-                dispatch({type: 'SHOW_BOOKMARK', hide: true});
+                dispatch({type: 'SHOW_BOOKMARK', bookmark: bookmark});
                 dispatch({type: 'REQUEST_BOOKMARKS'});
             });
 
@@ -74,11 +80,14 @@ export const actionCreators = {
             });
     },
     showBookmark: (bookmark?: Bookmark, hide: boolean = false): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        dispatch({type: 'SHOW_BOOKMARK', hide: hide});
+        dispatch({type: 'SHOW_BOOKMARK', bookmark: bookmark});
     },
+    showEditMode: (editMode: boolean = true): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        dispatch({type: 'EDIT_BOOKMARKS', edit: editMode});
+    }
 };
 
-const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false, viewingBookmark: false };
+const unloadedState: BookmarksState = { bookmarks: [], isLoaded: false, loadedBookmark: undefined, editMode: false};
 
 export const reducer: Reducer<BookmarksState> = (state: BookmarksState = unloadedState, 
                                                  incomingAction: Action): BookmarksState => {
@@ -99,7 +108,7 @@ export const reducer: Reducer<BookmarksState> = (state: BookmarksState = unloade
             return {
                 ...state,
                 isLoaded: false,
-                viewingBookmark: false
+                loadedBookmark: undefined
             };
         case 'DELETE_BOOKMARK':
             const bookmarks: Bookmark[] = [];
@@ -112,12 +121,18 @@ export const reducer: Reducer<BookmarksState> = (state: BookmarksState = unloade
             return {
                 ...state,
                 bookmarks: bookmarks,
-                isLoaded: false
+                isLoaded: false,
+                loadedBookmark: undefined
             }
         case 'SHOW_BOOKMARK':
             return {
                 ...state,
-                viewingBookmark: !action.hide
+                loadedBookmark: action.bookmark
+            };
+        case 'EDIT_BOOKMARKS':
+            return {
+                ...state,
+                editMode: action.edit
             };
     }
 

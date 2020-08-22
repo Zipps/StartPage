@@ -23,7 +23,7 @@ interface BookmarkDataConfig {
     elementType: string;
     elementConfig: ElementConfig;
     touched: boolean;    
-    value: string;
+    value?: string;
     validation: Rules;
     valid: boolean;
     visible: boolean;
@@ -45,7 +45,7 @@ class BookmarkData extends Component<BookmarkProps> {
                     type: 'text',
                     placeholder: 'ID'
                 },
-                value: '',
+                value: undefined,
                 validation: {
                     required: false
                 },
@@ -60,7 +60,7 @@ class BookmarkData extends Component<BookmarkProps> {
                     type: 'text',
                     placeholder: 'Title'
                 },
-                value: '',
+                value: undefined,
                 validation: {
                     required: true
                 },
@@ -75,7 +75,7 @@ class BookmarkData extends Component<BookmarkProps> {
                     type: 'url',
                     placeholder: 'https://example.com'
                 },
-                value: '',
+                value: undefined,
                 validation: {
                     required: true,
                     isUrl: true
@@ -91,7 +91,7 @@ class BookmarkData extends Component<BookmarkProps> {
                     type: 'url',
                     placeholder: 'https://example.com/icon.png'
                 },
-                value: '',
+                value: undefined,
                 validation: {
                     required: false,
                     isUrl: true
@@ -105,7 +105,33 @@ class BookmarkData extends Component<BookmarkProps> {
         loading: false
     }
 
-    private bookmarkHandler(event: React.FormEvent<HTMLFormElement>): void {
+    public componentDidMount() {
+        if (!this.props.loadedBookmark) return;
+
+        const updatedBookmarkForm = [
+            ...this.state.bookmarkForm
+        ];
+        updatedBookmarkForm.map(formElement => {
+            switch(formElement.id) {
+                case 'id':
+                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.id : undefined;
+                    break;
+                case 'title':
+                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.title : undefined;
+                    break;
+                case 'url':
+                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.url : undefined;
+                    break;
+                case 'imageUrl':
+                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.imageUrl : undefined;
+                    break;
+            }
+        });
+
+        this.setState({bookmarkForm: updatedBookmarkForm});
+    }
+
+    private bookmarkHandler = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         this.setState({loading: true});
         const bookmark: BookmarksStore.Bookmark =  {};
@@ -125,7 +151,7 @@ class BookmarkData extends Component<BookmarkProps> {
         this.props.saveBookmark(bookmark);
     }
 
-    private inputChangedHandler(event: React.ChangeEvent<HTMLInputElement>, index: number) {
+    private inputChangedHandler = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const updatedBookmarkForm = [ 
             ...this.state.bookmarkForm
         ];
@@ -144,7 +170,7 @@ class BookmarkData extends Component<BookmarkProps> {
         this.setState({bookmarkForm: updatedBookmarkForm, formIsValid: formIsValid});
     }
     
-    private checkValidity(value: string, rules: Rules) {
+    private checkValidity = (value: string, rules: Rules) => {
         let isValid = true;
         if (!rules) {
             return isValid;
@@ -162,20 +188,26 @@ class BookmarkData extends Component<BookmarkProps> {
         return isValid;
     }
 
-    private closeHandler(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    private closeHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
        event.preventDefault();
-       this.props.showBookmark({}, true); 
+       this.props.showBookmark(undefined, true); 
+    }
+
+    private deleteBookmarkHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        event.preventDefault();
+        const id = this.props.loadedBookmark ? this.props.loadedBookmark.id || '' : '';
+        this.props.deleteBookmark(id);
     }
 
     public render() {
         let form = (
-            <form onSubmit={(event: React.ChangeEvent<HTMLFormElement>) => this.bookmarkHandler(event)}>
+            <form onSubmit={this.bookmarkHandler}>
                 {this.state.bookmarkForm.map((formElement, index) => (
                     <Input
                         key={formElement.id}
                         elementType={formElement.elementType}
                         elementConfig={formElement.elementConfig}
-                        value={formElement.value}
+                        value={formElement.value || ''}
                         invalid={!formElement.valid}
                         shouldValidate={formElement.validation != null}
                         touched={formElement.touched}
@@ -185,11 +217,15 @@ class BookmarkData extends Component<BookmarkProps> {
                 <Button 
                     btnType="Success"
                     disabled={!this.state.formIsValid}>Save</Button>
+                <Button
+                    btnType="Danger"
+                    disabled={!this.props.editMode}
+                    clicked={this.deleteBookmarkHandler}>Delete</Button>
                 <Button 
-                    btnType=""
+                    btnType="Cancel"
                     disabled={false}
-                    clicked={(event: React.MouseEvent<HTMLButtonElement,MouseEvent>) => this.closeHandler(event)}
-                    type='button'>Cancel</Button>
+                    clicked={this.closeHandler}
+                    type="button">Cancel</Button>
             </form>
         );
         return (

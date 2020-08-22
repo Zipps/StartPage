@@ -3,12 +3,14 @@ import React from 'react';
 import classes from './Button.module.css';
 
 interface ButtonProps {
-    btnType: string;
+    btnType: ButtonType;
     children: any;
     clicked?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-    disabled: boolean;
+    disabled?: boolean;
     type?: "button" | "submit" | "reset";
 }
+
+type ButtonType = 'Success' | 'Cancel' | 'Danger' | 'Icon';
 
 const button = (props: ButtonProps) => (
     <button

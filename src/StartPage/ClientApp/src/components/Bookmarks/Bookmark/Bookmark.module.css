@@ -1,28 +1,21 @@
 .Image {
-    height: 8vh;
-    width: 8vh;
+    height: 9vh;
+    width: 9vh;
+    border-radius: 4px;
 }
 
 .Link {
-    background: #ccc;
-    border-radius: 4px;
-    padding: 6px;
-    margin: 4px;
-    height: 11vh;
-    width: 8vh;
-    display: block;
     text-decoration: none;
-}
-
-.Link:hover {
-    background: #eee;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 .Title {
-    margin-top: 0.5vh;
+    margin-top: 0.2vh;
     margin-left: auto;
     margin-right: auto;
-    width: 8vh;
+    width: 9vh;
     color: #222222;
     align-content: center;
     font-weight: 800; 

@@ -14,6 +14,15 @@
     }
 }
 
+.ActionBar {
+    margin-bottom: 5px;
+    overflow: auto;
+}
+
+.Actions {
+    float: right;
+}
+
 .BookmarkList {
     list-style-type: none;
     display: flex;
@@ -21,4 +30,32 @@
     align-content: center;
     justify-content: center;
     padding: 0;
+}
+
+.ListElement {
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 2.3vh;
+    margin: 4px;
+    position: relative;
+    height: 12vh;
+    width: 9vh;
+}
+
+.ListElement:hover {
+    /* box-shadow: 2px 2px 2px 2px #fff; */
+    background: #eeefff;
+}
+
+.Overlay {
+    position: absolute;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    color: white;
+    text-align: center;
+    display:flex;
+    cursor: pointer;
 }
