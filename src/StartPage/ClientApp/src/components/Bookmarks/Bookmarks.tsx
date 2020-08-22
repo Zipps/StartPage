@@ -10,7 +10,6 @@ import Button from '../UI/Button/Button';
 import SVGIcon from '../UI/SVGIcon/SVGIcon';
 
 import classes from './Bookmarks.module.css';
-import { throws } from 'assert';
 
 type BookmarkProps =
     BookmarksStore.BookmarksState &

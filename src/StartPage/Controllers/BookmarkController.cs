@@ -29,17 +29,16 @@ namespace StartPage.Controllers
 
         [HttpPost]
         [Route("{id}")]
-        public async Task Update(string idString, [FromBody]Bookmark bookmark)
+        public async Task Update(Guid id, [FromBody]Bookmark bookmark)
         {
-            bookmark.Id = Guid.Parse(idString);
+            bookmark.Id = id;
             await _service.Update(bookmark);
         }
         
         [HttpGet]
         [Route("{id}")]
-        public async Task<object> Get(string idString)
+        public async Task<object> Get(Guid id)
         {
-            if (!Guid.TryParse(idString, out var id)) return null;
             return await _service.Get(id);
         }
 

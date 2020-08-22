@@ -66,7 +66,7 @@ export const actionCreators = {
             body: JSON.stringify(bookmark)
         })
             .then(() => {
-                dispatch({type: 'SHOW_BOOKMARK', bookmark: bookmark});
+                dispatch({type: 'SHOW_BOOKMARK', bookmark: undefined});
                 dispatch({type: 'REQUEST_BOOKMARKS'});
             });
 

@@ -49,7 +49,7 @@ class BookmarkData extends Component<BookmarkProps> {
                 validation: {
                     required: false
                 },
-                valid: true,
+                valid: false,
                 touched: false,
                 visible: false
             },
@@ -64,7 +64,7 @@ class BookmarkData extends Component<BookmarkProps> {
                 validation: {
                     required: true
                 },
-                valid: true,
+                valid: false,
                 touched: false,
                 visible: true
             },
@@ -115,20 +115,24 @@ class BookmarkData extends Component<BookmarkProps> {
             switch(formElement.id) {
                 case 'id':
                     formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.id : undefined;
+                    formElement.valid = true;
                     break;
                 case 'title':
                     formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.title : undefined;
+                    formElement.valid = true;
                     break;
                 case 'url':
                     formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.url : undefined;
+                    formElement.valid = true;
                     break;
                 case 'imageUrl':
                     formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.imageUrl : undefined;
+                    formElement.valid = true;
                     break;
             }
         });
 
-        this.setState({bookmarkForm: updatedBookmarkForm});
+        this.setState({bookmarkForm: updatedBookmarkForm, formIsValid: true});
     }
 
     private bookmarkHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -137,6 +141,9 @@ class BookmarkData extends Component<BookmarkProps> {
         const bookmark: BookmarksStore.Bookmark =  {};
         this.state.bookmarkForm.map(formElement => {
             switch (formElement.id) {
+                case 'id':
+                    bookmark.id = formElement.value;
+                    break;
                 case 'title':
                     bookmark.title = formElement.value;
                     break;
