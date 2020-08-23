@@ -6,9 +6,12 @@ namespace StartPage.Tests.Factories
     public class BookmarkFactory : FactoryBase
     {
         public Bookmark Bookmark { get; set; }
+        public UserFactory UserFactory { get; set; }
 
         public BookmarkFactory(StartPageContext context) : base(context)
         {
+            UserFactory = new UserFactory(context);
+            UserFactory.CreateUser().Save();
         }
 
         public BookmarkFactory CreateBookmark()
@@ -16,7 +19,8 @@ namespace StartPage.Tests.Factories
             Bookmark = new Bookmark
             {
                 Title = RandomString(30),
-                Url = $"{RandomString(50)}.{RandomString(3)}"
+                Url = $"{RandomString(50)}.{RandomString(3)}",
+                UserId = UserFactory.User.UserId
             };
 
             return this;

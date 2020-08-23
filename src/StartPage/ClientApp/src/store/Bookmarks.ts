@@ -9,7 +9,7 @@ export interface BookmarksState {
 }
 
 export interface Bookmark {
-    id?: string;
+    bookmarkId?: string;
     title?: string;
     imageUrl?: string;
     url?: string;
@@ -30,7 +30,7 @@ interface SaveBookmarkAction {
 
 interface DeleteBookmarkAction {
     type: 'DELETE_BOOKMARK';
-    id: string;
+    bookmarkId: string;
 }
 
 interface ShowBookmarkAction {
@@ -57,8 +57,8 @@ export const actionCreators = {
     },
     saveBookmark: (bookmark: Bookmark): AppThunkAction<KnownAction> => (dispatch, getState) => {
         let endpoint = 'bookmark';
-        if (bookmark.id) {
-            endpoint += `/${bookmark.id}`;
+        if (bookmark.bookmarkId) {
+            endpoint += `/${bookmark.bookmarkId}`;
         }
         fetch(endpoint, {
             method: 'POST',
@@ -71,12 +71,12 @@ export const actionCreators = {
             });
 
     },
-    deleteBookmark: (id: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        fetch(`bookmark/${id}`, {
+    deleteBookmark: (bookmarkId: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        fetch(`bookmark/${bookmarkId}`, {
             method: 'DELETE'
         })
             .then(() => {
-                dispatch({type: 'DELETE_BOOKMARK', id: id});
+                dispatch({type: 'DELETE_BOOKMARK', bookmarkId: bookmarkId});
             });
     },
     showBookmark: (bookmark?: Bookmark, hide: boolean = false): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -113,7 +113,7 @@ export const reducer: Reducer<BookmarksState> = (state: BookmarksState = unloade
         case 'DELETE_BOOKMARK':
             const bookmarks: Bookmark[] = [];
             state.bookmarks.map(x => {
-                if (x.id !== action.id) {
+                if (x.bookmarkId !== action.bookmarkId) {
                     bookmarks.push(x);
                 }
             });

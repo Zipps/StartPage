@@ -27,9 +27,9 @@ namespace StartPage.Services
 
         public async Task<Bookmark> Create(Bookmark bookmark)
         {
-            if (bookmark.Id == Guid.Empty)
+            if (bookmark.BookmarkId == Guid.Empty)
             {
-                bookmark.Id = Guid.NewGuid();
+                bookmark.BookmarkId = Guid.NewGuid();
             }
             _context.Bookmarks.Add(bookmark);
             await _context.SaveChangesAsync();
@@ -46,7 +46,7 @@ namespace StartPage.Services
         public async Task<Bookmark> Get(Guid id)
         {
             var existingBookmark = await _context.Bookmarks
-                        .SingleOrDefaultAsync(x => x.Id == id);
+                        .SingleOrDefaultAsync(x => x.BookmarkId == id);
             if (existingBookmark == null) return null;
 
             return existingBookmark;

@@ -1,22 +1,17 @@
-using System.Collections.Immutable;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using StartPage.Framework;
 using StartPage.Models;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace StartPage.Services
 {
     public interface IUserService
     {
-        Task<bool> Authenticate(string username, string password);
+        bool Authenticate(User user, string enteredPassword);
         Task Create(User user);
         Task<User> Get(string username);
         Task<IEnumerable<User>> GetAll();
@@ -33,28 +28,9 @@ namespace StartPage.Services
             _context = context;
         }
 
-        public async Task<bool> Authenticate(string username, string password)
+        public bool Authenticate(User user, string enteredPassword)
         {
-            var existingUser = await Get(username);
-            if (existingUser == null) return false;
-
-            if (!PasswordsMatch(existingUser, password)) return false;
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[] 
-                {
-                    new Claim(ClaimTypes.Name, existingUser.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(GetTokenKey()), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            existingUser.Token = tokenHandler.WriteToken(token);
-            await Update(existingUser);
-
-            return true;
+            return PasswordsMatch(user, enteredPassword);
         }
 
         public async Task Create(User user)
@@ -96,19 +72,6 @@ namespace StartPage.Services
             _context.Users.Remove(existingUser);
             
             await _context.SaveChangesAsync();
-        }
-
-        public static byte[] GetTokenKey()
-        {
-            const string tokenSecretVariable = "STARTPAGE_TOKEN_SECRET";
-            var secret = Environment.GetEnvironmentVariable(tokenSecretVariable);
-            if (string.IsNullOrWhiteSpace(secret))
-            {
-                secret = "abcdefghijk123456789";
-                Console.WriteLine($"Please set the {tokenSecretVariable} variable");
-            }
-            var key = Encoding.ASCII.GetBytes(secret);
-            return key;
         }
 
         private const string SplitChar = "$";

@@ -29,10 +29,10 @@ class Bookmarks extends React.PureComponent<BookmarkProps> {
         this.props.showBookmark({});
     }
 
-    private editBookmarkHandler = (id?: string) => {
-        if (!id) return;
+    private editBookmarkHandler = (bookmarkId?: string) => {
+        if (!bookmarkId) return;
 
-        const bookmark = this.props.bookmarks.find(x => x.id === id);
+        const bookmark = this.props.bookmarks.find(x => x.bookmarkId === bookmarkId);
         this.props.showBookmark(bookmark || {});
     }
 
@@ -77,11 +77,11 @@ class Bookmarks extends React.PureComponent<BookmarkProps> {
                 </div>
                 <ul className={classes.BookmarkList}>
                     {this.props.bookmarks.map(props => 
-                        <li key={props.id} className={classes.ListElement}>
+                        <li key={props.bookmarkId} className={classes.ListElement}>
                             <Bookmark {...props} />
                             {this.props.editMode 
                                 ? <div className={classes.Overlay}
-                                       onClick={() => this.editBookmarkHandler(props.id)}>
+                                       onClick={() => this.editBookmarkHandler(props.bookmarkId)}>
                                     <SVGIcon
                                         name='gear'
                                         width='32px'

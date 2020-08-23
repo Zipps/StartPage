@@ -39,7 +39,7 @@ class BookmarkData extends Component<BookmarkProps> {
     state: BookmarkDataState = {
         bookmarkForm: [
             {
-                id: 'id',
+                id: 'bookmarkId',
                 elementType: 'input',
                 elementConfig: {
                     type: 'text',
@@ -113,8 +113,8 @@ class BookmarkData extends Component<BookmarkProps> {
         ];
         updatedBookmarkForm.map(formElement => {
             switch(formElement.id) {
-                case 'id':
-                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.id : undefined;
+                case 'bookmarkId':
+                    formElement.value = this.props.loadedBookmark ? this.props.loadedBookmark.bookmarkId : undefined;
                     formElement.valid = true;
                     break;
                 case 'title':
@@ -141,8 +141,8 @@ class BookmarkData extends Component<BookmarkProps> {
         const bookmark: BookmarksStore.Bookmark =  {};
         this.state.bookmarkForm.map(formElement => {
             switch (formElement.id) {
-                case 'id':
-                    bookmark.id = formElement.value;
+                case 'bookmarkId':
+                    bookmark.bookmarkId = formElement.value;
                     break;
                 case 'title':
                     bookmark.title = formElement.value;
@@ -202,7 +202,7 @@ class BookmarkData extends Component<BookmarkProps> {
 
     private deleteBookmarkHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         event.preventDefault();
-        const id = this.props.loadedBookmark ? this.props.loadedBookmark.id || '' : '';
+        const id = this.props.loadedBookmark ? this.props.loadedBookmark.bookmarkId || '' : '';
         this.props.deleteBookmark(id);
     }
 

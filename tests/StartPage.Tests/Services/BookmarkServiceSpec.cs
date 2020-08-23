@@ -43,12 +43,12 @@ namespace StartPage.Tests.Services
         public async Task CreateBookmarkTest()
         {
             var bookmark = _factory.CreateBookmark().Bookmark;
-            Assert.AreEqual(Guid.Empty, bookmark.Id);
+            Assert.AreEqual(Guid.Empty, bookmark.BookmarkId);
 
             var service = new BookmarkService(_context);
             var createdBookmark = await service.Create(bookmark);
             Assert.NotNull(createdBookmark);
-            Assert.AreNotEqual(Guid.Empty, createdBookmark.Id);
+            Assert.AreNotEqual(Guid.Empty, createdBookmark.BookmarkId);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace StartPage.Tests.Services
             _factory.CreateBookmark().Save();
 
             var service = new BookmarkService(_context);
-            var bookmark = await service.Get(_factory.Bookmark.Id);
+            var bookmark = await service.Get(_factory.Bookmark.BookmarkId);
             Assert.NotNull(bookmark);
             Assert.AreEqual(_factory.Bookmark.Title, bookmark.Title);
             Assert.AreEqual(_factory.Bookmark.ImageUrl, bookmark.ImageUrl);
@@ -97,7 +97,7 @@ namespace StartPage.Tests.Services
             var service = new BookmarkService(_context);
             await service.Update(bookmark);
 
-            var updatedBookmark = await service.Get(bookmark.Id);
+            var updatedBookmark = await service.Get(bookmark.BookmarkId);
             Assert.NotNull(updatedBookmark);
             Assert.AreEqual(newTitle, updatedBookmark.Title);
             Assert.AreEqual(newUrl, updatedBookmark.Url);

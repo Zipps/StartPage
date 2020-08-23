@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using StartPage.Models;
@@ -10,6 +11,7 @@ namespace StartPage.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(Policy = Policies.User)]
     public class BookmarkController : ControllerBase
     {
         private readonly IBookmarkService _service;
@@ -31,7 +33,7 @@ namespace StartPage.Controllers
         [Route("{id}")]
         public async Task Update(Guid id, [FromBody]Bookmark bookmark)
         {
-            bookmark.Id = id;
+            bookmark.BookmarkId = id;
             await _service.Update(bookmark);
         }
         

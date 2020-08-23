@@ -41,7 +41,7 @@ namespace StartPage.Tests.Services
         public async Task CreateUserCreatesIdTest()
         {
             var user = _factory.CreateUser().User;
-            Assert.AreEqual(Guid.Empty, user.Id);
+            Assert.AreEqual(Guid.Empty, user.UserId);
 
             var service = new UserService(_context);
             await service.Create(user);
@@ -136,7 +136,7 @@ namespace StartPage.Tests.Services
         }
 
         [Test]
-        public async Task UserAuthenticateCreatesTokenOnUserRecordTest()
+        public async Task UserAuthenticateTest()
         {
             var user = _factory.CreateUser().User;
             var password = TestContext.CurrentContext.Random.GetString(25);
@@ -148,13 +148,9 @@ namespace StartPage.Tests.Services
 
             var readUser = await service.Get(user.Username);
             Assert.NotNull(readUser);
-            Assert.That(user.Token, Is.Null);
 
-            var isAuthenticated = await service.Authenticate(user.Username, password);
+            var isAuthenticated = service.Authenticate(user, password);
             Assert.IsTrue(isAuthenticated);
-
-            var authenticatedUser = await service.Get(user.Username);
-            Assert.That(user.Token, Is.Not.Null);
         }
 
         [Test]
@@ -168,12 +164,8 @@ namespace StartPage.Tests.Services
             var service = new UserService(_context);
             await service.Create(user);
 
-            var isAuthenticated = await service.Authenticate(user.Username, "wrong password");
+            var isAuthenticated = service.Authenticate(user, "wrong password");
             Assert.IsFalse(isAuthenticated);
-
-            var readUser = service.Get(user.Username);
-            Assert.That(user.Token, Is.Null);
         }
-
     }
 }
