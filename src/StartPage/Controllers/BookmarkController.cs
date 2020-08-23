@@ -10,7 +10,7 @@ using StartPage.Services;
 namespace StartPage.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize(Policy = Policies.User)]
     public class BookmarkController : ControllerBase
     {
@@ -23,7 +23,7 @@ namespace StartPage.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
+        [HttpPut]
         public async Task Create([FromBody]Bookmark bookmark)
         {
             await _service.Create(bookmark);
@@ -42,12 +42,6 @@ namespace StartPage.Controllers
         public async Task<object> Get(Guid id)
         {
             return await _service.Get(id);
-        }
-
-        [HttpGet]
-        public async Task<IEnumerable<Bookmark>> GetAll()
-        {
-            return await _service.GetAll();
         }
 
         [HttpDelete]

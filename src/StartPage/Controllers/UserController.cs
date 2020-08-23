@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using StartPage.Helpers;
 using StartPage.Models;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 namespace StartPage.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [Authorize(Policy = Policies.User)]
     public class UserController : ControllerBase
     {
@@ -21,7 +22,7 @@ namespace StartPage.Controllers
             _service = service;
         }
 
-        [HttpPost]
+        [HttpPut]
         [AllowAnonymous]
         public async Task Create([FromBody]User user)
         {
@@ -50,6 +51,14 @@ namespace StartPage.Controllers
         public async Task Delete(string username)
         {
             await _service.Delete(username);
+        }
+
+        [HttpGet]
+        [Route("{username}/bookmarks")]
+        public async Task<IEnumerable<Bookmark>> GetBookmarksByUser(string username)
+        {
+            var user = await _service.Get(username);
+            return user.Bookmarks;
         }
     }
 }
