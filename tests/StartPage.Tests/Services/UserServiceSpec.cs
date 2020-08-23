@@ -129,7 +129,7 @@ namespace StartPage.Tests.Services
             var user = _factory.CreateUser().Save().User;
 
             var service = new UserService(_context);
-            await service.Delete(user.Username);
+            await service.Delete(user.UserId);
 
             var readUser = await service.Get(user.Username);
             Assert.IsNull(readUser);

@@ -1,9 +1,11 @@
 import * as Bookmarks from './Bookmarks';
 import * as Home from './Home';
+import * as User from './User';
 
 // The top-level state object
 export interface ApplicationState {
     home: Home.HomeState | undefined,
+    user: User.UserState | undefined,
     bookmarks: Bookmarks.BookmarksState | undefined;
 }
 
@@ -12,6 +14,7 @@ export interface ApplicationState {
 // acts on the corresponding ApplicationState property type.
 export const reducers = {
     home: Home.reducer,
+    user: User.reducer,
     bookmarks: Bookmarks.reducer
 };
 

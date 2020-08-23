@@ -30,7 +30,7 @@ namespace StartPage
 
             services.AddDbContext<StartPageContext>(options => BuildDbContextOptions(options));
 
-            var key = Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"]);
+            var key = Encoding.UTF8.GetBytes(Configuration["AppSettings:Jwt:SecretKey"]);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(x => 
             {
@@ -43,14 +43,17 @@ namespace StartPage
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Audience"]
+                    ValidIssuer = Configuration["AppSettings:Jwt:Issuer"],
+                    ValidAudience = Configuration["AppSettings:Jwt:Audience"]
                 };
             });
 
             services.AddAuthorization(config => {
                 config.AddPolicy(Policies.User, Policies.UserPolicy());
             });
+
+            // services.AddOptions();
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
 
             services.AddScoped<IBookmarkService, BookmarkService>();
             services.AddScoped<IUserService, UserService>();
@@ -84,6 +87,7 @@ namespace StartPage
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

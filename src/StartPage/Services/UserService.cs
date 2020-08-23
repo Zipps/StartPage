@@ -12,11 +12,12 @@ namespace StartPage.Services
     public interface IUserService
     {
         bool Authenticate(User user, string enteredPassword);
-        Task Create(User user);
+        Task<User> Create(User user);
+        Task<User> Get(Guid userId);
         Task<User> Get(string username);
         Task<IEnumerable<User>> GetAll();
-        Task Update(User user);
-        Task Delete(string username);
+        Task<User> Update(User user);
+        Task Delete(Guid userId);
     }
 
     public class UserService : IUserService
@@ -33,20 +34,30 @@ namespace StartPage.Services
             return PasswordsMatch(user, enteredPassword);
         }
 
-        public async Task Create(User user)
+        public async Task<User> Create(User user)
         {
             user.Password = HashPassword(user.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+            return user;
         }
 
-        public async Task Update(User user)
+        public async Task<User> Update(User user)
         {
             user.Password = HashPassword(user.Password);
 
             var updatedUser = _context.Users.Update(user);
             await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User> Get(Guid userId)
+        {
+            var existingUser = await _context.Users.SingleOrDefaultAsync(user => user.UserId == userId);
+            if (existingUser == null) return null;
+
+            return existingUser;
         }
 
         public async Task<User> Get(string username)
@@ -64,9 +75,9 @@ namespace StartPage.Services
             return allUsers;
         }
 
-        public async Task Delete(string username)
+        public async Task Delete(Guid userId)
         {
-            var existingUser = await Get(username);
+            var existingUser = await Get(userId);
             if (existingUser == null) return;
 
             _context.Users.Remove(existingUser);

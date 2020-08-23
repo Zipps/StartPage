@@ -7,7 +7,7 @@ using StartPage.Models;
 using StartPage.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace StartPage.Controllers
@@ -15,43 +15,45 @@ namespace StartPage.Controllers
     [ApiController]
     [Route("[controller]")]
     [AllowAnonymous]
-    public class LoginController
+    public class LoginController : ControllerBase
     {
-        private readonly IConfiguration _config;
+        private readonly AppSettings _appSettings;
         private readonly IUserService _service;
-        public LoginController(IConfiguration config, IUserService service)
+        public LoginController(IOptions<AppSettings> appSettings, IUserService service)
         {
-            _config = config;
+            _appSettings = appSettings.Value;
             _service = service;
         }
         
         [HttpPost]
         [AllowAnonymous]
-        public async Task<string> Authenticate([FromBody]User authenticationRequest)
+        public async Task<IActionResult> Authenticate([FromBody]User authenticationRequest)
         {
             var user = await _service.Get(authenticationRequest.Username);
-            if (user == null) return null;
-
-            if (!_service.Authenticate(user, authenticationRequest.Password)) return null;
+            if (user == null || !_service.Authenticate(user, authenticationRequest.Password))
+            {
+                return BadRequest(new { message = "Username or password is incorrect" });
+            }
 
             var credentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"])), SecurityAlgorithms.HmacSha256);
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.SecretKey)), SecurityAlgorithms.HmacSha256);
             var claims = new Claim[] 
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-                    new Claim("username", user.Username),
+                    new Claim("userId", user.UserId.ToString()),
                     new Claim("role", Policies.User),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _appSettings.Jwt.Issuer,
+                audience: _appSettings.Jwt.Audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddDays(7),
                 signingCredentials: credentials
             );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+
+            return Ok(new JwtSecurityTokenHandler().WriteToken(token));
         }
     } 
 }

@@ -49,19 +49,24 @@ type KnownAction = RequestBookmarksAction | ReceiveBookmarksAction | SaveBookmar
 export const actionCreators = {
     requestBookmarks: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
+        const user = appState.user != null ? appState.user.user : undefined;
+        if (!user) return;
+
         if (appState && appState.bookmarks && !appState.bookmarks.isLoaded) {
-            fetch(`bookmark`)
+            fetch(`api/user/${user.userId}/bookmark`)
                 .then(response => response.json() as Promise<Bookmark[]>)
                 .then(data => dispatch({ type: 'RECEIVE_BOOKMARKS', bookmarks: data }))
         }
     },
     saveBookmark: (bookmark: Bookmark): AppThunkAction<KnownAction> => (dispatch, getState) => {
         let endpoint = 'bookmark';
+        let method = 'PUT';
         if (bookmark.bookmarkId) {
-            endpoint += `/${bookmark.bookmarkId}`;
+            endpoint += `api/${bookmark.bookmarkId}`;
+            method = 'POST';
         }
         fetch(endpoint, {
-            method: 'POST',
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookmark)
         })
@@ -72,7 +77,7 @@ export const actionCreators = {
 
     },
     deleteBookmark: (bookmarkId: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-        fetch(`bookmark/${bookmarkId}`, {
+        fetch(`api/bookmark/${bookmarkId}`, {
             method: 'DELETE'
         })
             .then(() => {

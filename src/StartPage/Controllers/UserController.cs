@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using StartPage.Helpers;
 using StartPage.Models;
 using StartPage.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace StartPage.Controllers
 {
@@ -14,51 +14,88 @@ namespace StartPage.Controllers
     [Authorize(Policy = Policies.User)]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _config;
+        private readonly AppSettings _appSettings;
         private readonly IUserService _service;
-        public UserController(IConfiguration config, IUserService service)
+        public UserController(IOptions<AppSettings> appSettings, IUserService service)
         {
-            _config = config;
+            _appSettings = appSettings.Value;
             _service = service;
         }
 
         [HttpPut]
         [AllowAnonymous]
-        public async Task Create([FromBody]User user)
+        public async Task<IActionResult> Create([FromBody]User user)
         {
-            if (!bool.Parse(_config["Settings:AllowSignup"])) return;
+            if (!_appSettings.AllowSignup)
+            {
+                return Forbid();
+            }
 
-            await _service.Create(user);
+            return Created("user", await _service.Create(user));
         }
 
         [HttpPost]
-        [Route("{username}")]
-        public async Task Update([FromBody]User user)
+        [Route("{userId}")]
+        public async Task<IActionResult> Update(Guid userId, [FromBody]User user)
         {
-            await _service.Update(user);
+            if (!HttpContext.IsCurrentUser(userId))
+            {
+                return Forbid();
+            }
+
+            user.UserId = userId;
+            return Ok(await _service.Update(user));
+        }
+
+        [HttpGet]
+        [Route("{userId}")]
+        public async Task<IActionResult> Get(Guid userId)
+        {
+            if (!HttpContext.IsCurrentUser(userId))
+            {
+                return Forbid();
+            }
+
+            var user = await _service.Get(userId);
+            return Ok(user.WithoutSensitive());
         }
 
         [HttpGet]
         [Route("{username}")]
-        public async Task<object> Get(string username)
+        public async Task<IActionResult> Get(string username)
         {
             var user = await _service.Get(username);
-            return user.WithoutSensitive();
+            if (!HttpContext.IsCurrentUser(user.UserId))
+            {
+                return Forbid();
+            }
+            return Ok(user.WithoutSensitive());
         }
 
         [HttpDelete]
-        [Route("{username}")]
-        public async Task Delete(string username)
+        [Route("{userId}")]
+        public async Task<IActionResult> Delete(Guid userId)
         {
-            await _service.Delete(username);
+            if (!HttpContext.IsCurrentUser(userId))
+            {
+                return Forbid();
+            }
+
+            await _service.Delete(userId);
+            return Ok();
         }
 
         [HttpGet]
         [Route("{username}/bookmarks")]
-        public async Task<IEnumerable<Bookmark>> GetBookmarksByUser(string username)
+        public async Task<IActionResult> GetBookmarksByUser(Guid userId)
         {
-            var user = await _service.Get(username);
-            return user.Bookmarks;
+            if (!HttpContext.IsCurrentUser(userId))
+            {
+                return Forbid();
+            }
+
+            var user = await _service.Get(userId);
+            return Ok(user.Bookmarks);
         }
     }
 }
